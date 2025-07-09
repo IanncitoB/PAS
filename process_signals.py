@@ -8,7 +8,7 @@ from statsmodels.tsa.arima.model import ARIMA
 from prophet import Prophet
 
 
-def plot_series(series, title=None, xlabel='Date', ylabel='Demanda (MW)'):
+def plot_series(series, title=None, xlabel='Date', ylabel='Demanda (MW)', ymin=None, ymax=None):
     """
     Plot the entire time series.
     series: pandas Series with DateTime index.
@@ -17,6 +17,8 @@ def plot_series(series, title=None, xlabel='Date', ylabel='Demanda (MW)'):
     plt.plot(series)
     if title:
         plt.title(title)
+    if ymin is not None and ymax is not None:
+        plt.ylim(ymin, ymax)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.grid(True)
@@ -32,7 +34,7 @@ def moving_average(series, window=30):
     return series.rolling(window=window, center=False).mean()
 
 
-def plot_moving_average(series, ma, window=30, title='Moving Average', xlabel='Date', ylabel='Demanda (MW)'):
+def plot_moving_average(series, ma, window=30, title='Moving Average', xlabel='Date', ylabel='Demanda (MW)', ymin=None, ymax=None):
     """
     Plot moving average on top of the series.
     """
@@ -40,6 +42,8 @@ def plot_moving_average(series, ma, window=30, title='Moving Average', xlabel='D
     plt.plot(series, label='Original')
     plt.plot(ma, label=f'MA{window}')
     plt.title(title)
+    if ymin is not None and ymax is not None:
+        plt.ylim(ymin, ymax)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.legend()
@@ -142,7 +146,7 @@ def forecast_arima(fitted, start, steps, periods, freq='D'):
     return forecast_series, conf_int
 
 
-def plot_arima_forecast(train, test, forecast_series, conf_int, title='ARIMA Forecast', xlabel='Date', ylabel='Demanda (MW)'):
+def plot_arima_forecast(train, test, forecast_series, conf_int, title='ARIMA Forecast', xlabel='Date', ylabel='Demanda (MW)', ymin=None, ymax=None):
     """
     Plot ARIMA forecasts against actuals.
     train, test: pandas Series
@@ -154,11 +158,53 @@ def plot_arima_forecast(train, test, forecast_series, conf_int, title='ARIMA For
     plt.plot(forecast_series.index, forecast_series, label='Predicciones', color='tab:green')
     plt.fill_between(conf_int.index, conf_int.iloc[:, 0], conf_int.iloc[:,  1], color='lightgray', alpha=0.5, label='Intervalo de Confianza')
     plt.title(title)
+    if ymin is not None and ymax is not None:
+        plt.ylim(ymin, ymax)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.legend()
     plt.grid()
     plt.show()
+
+def fit_prophet(series):
+    """
+    Fit Prophet model to series.
+    series: pandas Series with DateTime index.
+    Returns fitted Prophet model.
+    """
+    df = pd.DataFrame({'ds': series.index, 'y': series.values})
+    df['ds'] = pd.to_datetime(df['ds'])
+    df['y'] = pd.to_numeric(df['y'], errors='coerce')
+
+    model = Prophet()
+    model.fit(df)
+    return model
+
+def forecast_prophet(model, periods=30, freq='D'):
+    """
+    Forecast using fitted Prophet model.
+    periods: number of periods to forecast.
+    freq: frequency string, e.g. 'D', 'M', 'Y'.
+    Returns forecast DataFrame.
+    """
+    future = model.make_future_dataframe(periods=periods, freq=freq)
+    forecast = model.predict(future)
+    return forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
+
+def plot_forecast_prophet(model, forecast, title='Predicciones con Prophet', xlabel='Fecha', ylabel='Demanda (MW)'):
+    """
+    Plot Prophet forecast using Prophet's built-in plot method and customize.
+    prophet_model: fitted Prophet model
+    forecast: Prophet forecast DataFrame
+    """
+    fig = model.plot(forecast)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid()
+    plt.legend(['Observado', 'Predicción', 'Intervalo de Confianza'])
+    plt.show()
+
 
 def decompose_series(series, model='additive', period=None):
     """
@@ -169,16 +215,21 @@ def decompose_series(series, model='additive', period=None):
     return seasonal_decompose(series, model=model, period=period)
 
 
-def plot_decomposition(decomp, xlabel='Date'):
+def plot_decomposition(decomp, xlabel='Date', ylabel='Demanda (MW)', title=None, ymin=None, ymax=None):
     """
     Plot decomposition result from seasonal_decompose.
     """
     decomp.plot()
+    if title:
+        plt.suptitle(title)
+    if ymin is not None and ymax is not None:
+        plt.ylim(ymin, ymax)
+    plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     plt.tight_layout()
     plt.show()
 
-def plot_decomposition_2(decomp, title=None, xlabel='Date'):
+def plot_decomposition_2(decomp, title=None, xlabel='Date', ylabel='Demanda (MW)', ymin=None, ymax=None):
     trend = decomp.trend.dropna()
     seasonal = decomp.seasonal.dropna()
     residual = decomp.resid.dropna()
@@ -198,25 +249,13 @@ def plot_decomposition_2(decomp, title=None, xlabel='Date'):
     plt.plot(residual, label='Residuo', color='tab:green')
     plt.title('Residuo')
     plt.legend()
+    if ymin is not None and ymax is not None:
+        plt.ylim(ymin, ymax)
     plt.tight_layout()
+    plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     plt.grid()
     plt.show()
-
-def forecast_prophet(df, periods=12, freq='M'):
-    """
-    Forecast using Prophet.
-    df: DataFrame with columns ['ds', 'y'].
-    periods: number of periods to forecast.
-    freq: frequency string, e.g. 'D', 'M', 'Y'.
-    Returns forecast DataFrame.
-    """
-    m = Prophet()
-    m.fit(df)
-    future = m.make_future_dataframe(periods=periods, freq=freq)
-    forecast = m.predict(future)
-    return forecast
-
 
 def compare_predictions(actual, predicted):
     """
