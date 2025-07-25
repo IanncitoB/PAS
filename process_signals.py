@@ -22,6 +22,7 @@ def plot_series(series, title=None, xlabel='Date', ylabel='Demanda (MW)', ymin=N
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.grid(True)
+    plt.savefig(f'img/series_plot_{title}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 
@@ -48,6 +49,7 @@ def plot_moving_average(series, ma, window=30, title='Moving Average', xlabel='D
     plt.ylabel(ylabel)
     plt.legend()
     plt.grid(True)
+    plt.savefig(f'img/MA{window}_{title}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 
@@ -97,6 +99,7 @@ def plot_acf_pacf(series, title=None, lags=30):
     plot_pacf(series, lags=lags, ax=ax[1])
     if title:
         plt.suptitle(title)
+    plt.savefig(f'img/acf_pacf_{title}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 
@@ -164,6 +167,7 @@ def plot_arima_forecast(train, test, forecast_series, conf_int, title='ARIMA For
     plt.ylabel(ylabel)
     plt.legend()
     plt.grid()
+    plt.savefig(f'img/arima_forecast_{title}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def fit_prophet(series):
@@ -203,6 +207,7 @@ def plot_forecast_prophet(model, forecast, title='Predicciones con Prophet', xla
     plt.ylabel(ylabel)
     plt.grid()
     plt.legend(['Observado', 'Predicción', 'Intervalo de Confianza'])
+    plt.savefig(f'img/prophet_forecast_{title}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def plot_prophet_predictions_vs_actuals(forecast, actuals, title='Predicciones vs Actuales', xlabel='Fecha', ylabel='Demanda (MW)', ymin=None, ymax=None):
@@ -222,6 +227,7 @@ def plot_prophet_predictions_vs_actuals(forecast, actuals, title='Predicciones v
     plt.ylabel(ylabel)
     plt.legend()
     plt.grid()
+    plt.savefig(f'img/prophet_predictions_{title}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def decompose_series(series, model='additive', period=None):
@@ -245,6 +251,7 @@ def plot_decomposition(decomp, xlabel='Date', ylabel='Demanda (MW)', title=None,
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     plt.tight_layout()
+    plt.savefig(f'img/decomposition_{title}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def plot_decomposition_2(decomp, title=None, xlabel='Date', ylabel='Demanda (MW)', ymin=None, ymax=None):
@@ -273,6 +280,7 @@ def plot_decomposition_2(decomp, title=None, xlabel='Date', ylabel='Demanda (MW)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     plt.grid()
+    plt.savefig(f'img/decomposition_2_{title}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 def compare_predictions(actual, predicted):
