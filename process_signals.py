@@ -8,13 +8,13 @@ from statsmodels.tsa.arima.model import ARIMA
 from prophet import Prophet
 
 
-def plot_series(series, title=None, xlabel='Date', ylabel='Demanda (MW)', ymin=None, ymax=None):
+def plot_series(series, color='tab:blue', title=None, xlabel='Date', ylabel='Demanda (MW)', ymin=None, ymax=None):
     """
     Plot the entire time series.
     series: pandas Series with DateTime index.
     """
     plt.figure(figsize=(12, 6))
-    plt.plot(series)
+    plt.plot(series, color=color)
     if title:
         plt.title(title)
     if ymin is not None and ymax is not None:
@@ -35,13 +35,13 @@ def moving_average(series, window=30):
     return series.rolling(window=window, center=False).mean()
 
 
-def plot_moving_average(series, ma, window=30, title='Moving Average', xlabel='Date', ylabel='Demanda (MW)', ymin=None, ymax=None):
+def plot_moving_average(series, ma, color='tab:blue', window=30, title='Moving Average', xlabel='Date', ylabel='Demanda (MW)', ymin=None, ymax=None):
     """
     Plot moving average on top of the series.
     """
     plt.figure(figsize=(12, 6))
-    plt.plot(series, label='Original')
-    plt.plot(ma, label=f'MA{window}')
+    plt.plot(series, label='Original', color='darkgrey')
+    plt.plot(ma, label=f'MA{window}', color=color)
     plt.title(title)
     if ymin is not None and ymax is not None:
         plt.ylim(ymin, ymax)
@@ -89,14 +89,14 @@ def differentiate(series):
     """
     return series.diff().dropna()
 
-def plot_acf_pacf(series, title=None, lags=30):
+def plot_acf_pacf(series, color='tab:blue', title=None, lags=30):
     """
     Plot ACF and PACF of the series.
     lags: number of lags to plot.
     """
     fig, ax = plt.subplots(1, 2, figsize=(16, 6))
-    plot_acf(series, lags=lags, ax=ax[0])
-    plot_pacf(series, lags=lags, ax=ax[1])
+    plot_acf(series, color=color, lags=lags, ax=ax[0])
+    plot_pacf(series, color=color, lags=lags, ax=ax[1])
     if title:
         plt.suptitle(title)
     plt.savefig(f'img/acf_pacf_{title}.png', dpi=300, bbox_inches='tight')
