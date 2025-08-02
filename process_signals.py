@@ -210,15 +210,16 @@ def plot_forecast_prophet(model, forecast, title='Predicciones con Prophet', xla
     plt.savefig(f'img/prophet_forecast_{title}.png', dpi=300, bbox_inches='tight')
     plt.show()
 
-def plot_prophet_predictions_vs_actuals(forecast, actuals, title='Predicciones vs Actuales', xlabel='Fecha', ylabel='Demanda (MW)', ymin=None, ymax=None):
+def plot_prophet_predictions_vs_actuals(forecast, actuals_train, actuals_test, title='Predicciones vs Actuales', xlabel='Fecha', ylabel='Demanda (MW)', ymin=None, ymax=None):
     """
     Plot Prophet predictions against actuals.
     forecast: Prophet forecast DataFrame
     actuals: pandas Series with actual values.
     """
     plt.figure(figsize=(12, 6))
-    plt.plot(actuals.index, actuals, label='Real', color='tab:blue')
-    plt.plot(forecast['ds'], forecast['yhat'], label='Predicción', color='tab:orange')
+    plt.plot(actuals_train.index, actuals_train, label='Entrenamiento', color='tab:blue')
+    plt.plot(actuals_test.index, actuals_test, label='Real', color='tab:orange')
+    plt.plot(forecast['ds'], forecast['yhat'], label='Predicción', color='tab:green')
     plt.fill_between(forecast['ds'], forecast['yhat_lower'], forecast['yhat_upper'], color='lightblue', alpha=0.5, label='Intervalo de Confianza')
     plt.title(title)
     if ymin is not None and ymax is not None:
